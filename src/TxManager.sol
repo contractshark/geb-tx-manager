@@ -25,9 +25,10 @@ import "ds-math/math.sol";
 import "ds-note/note.sol";
 import "erc20/erc20.sol";
 
-contract TxManager is DSAuth, DSMath, DSNote {
+contract TxManager is DSAuth, DSMath {
+    event Execute(address[] tokens, bytes script);
 
-    function execute(address[] tokens, bytes script) public note auth {
+    function execute(address[] tokens, bytes script) public auth {
         // pull the entire allowance of each token from the sender
         for (uint i = 0; i < tokens.length; i++) {
             uint256 amount = min(ERC20(tokens[i]).balanceOf(msg.sender), ERC20(tokens[i]).allowance(msg.sender, this));
@@ -40,6 +41,8 @@ contract TxManager is DSAuth, DSMath, DSNote {
         // return entire remaining balances of each token to the sender
         for (uint j = 0; j < tokens.length; j++)
             require(ERC20(tokens[j]).transfer(msg.sender, ERC20(tokens[j]).balanceOf(this)));
+
+        emit Execute(tokens, script);
     }
 
     function invokeContracts(bytes script) internal {
