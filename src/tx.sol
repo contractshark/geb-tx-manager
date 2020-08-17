@@ -1,5 +1,5 @@
-/// tx.sol -- multiple smart contract calls in one transaction,
-///           involving ERC20 tokens interaction
+/// TxManager.sol -- multiple smart contract calls in one transaction,
+///                  involving ERC20 tokens interaction
 
 // This file is part of Maker Keeper Framework.
 //
@@ -14,11 +14,11 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity ^0.4.18;
+pragma solidity ^0.6.7;
 
 import "ds-auth/auth.sol";
 import "ds-math/math.sol";
