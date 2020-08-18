@@ -28,11 +28,11 @@ import "erc20/erc20.sol";
 contract TxManager is DSAuth, DSMath {
     event Execute(address[] tokens, bytes script);
 
-    function execute(address[] tokens, bytes script) public auth {
+    function execute(address[] memory tokens, bytes memory script) public auth {
         // pull the entire allowance of each token from the sender
         for (uint i = 0; i < tokens.length; i++) {
-            uint256 amount = min(ERC20(tokens[i]).balanceOf(msg.sender), ERC20(tokens[i]).allowance(msg.sender, this));
-            require(ERC20(tokens[i]).transferFrom(msg.sender, this, amount));
+            uint256 amount = min(ERC20(tokens[i]).balanceOf(msg.sender), ERC20(tokens[i]).allowance(msg.sender, address(this)));
+            require(ERC20(tokens[i]).transferFrom(msg.sender, address(this), amount));
         }
 
         // sequentially call contacts, abort on failed calls
@@ -40,19 +40,19 @@ contract TxManager is DSAuth, DSMath {
 
         // return entire remaining balances of each token to the sender
         for (uint j = 0; j < tokens.length; j++)
-            require(ERC20(tokens[j]).transfer(msg.sender, ERC20(tokens[j]).balanceOf(this)));
+            require(ERC20(tokens[j]).transfer(msg.sender, ERC20(tokens[j]).balanceOf(address(this))));
 
         emit Execute(tokens, script);
     }
 
-    function invokeContracts(bytes script) internal {
+    function invokeContracts(bytes memory script) internal {
         uint256 location = 0;
         while (location < script.length) {
             address contractAddress = addressAt(script, location);
             uint256 calldataLength = uint256At(script, location + 0x14);
             uint256 calldataStart = locationOf(script, location + 0x14 + 0x20);
             assembly {
-                switch call(sub(gas, 5000), contractAddress, 0, calldataStart, calldataLength, 0, 0)
+                switch call(sub(gas(), 5000), contractAddress, 0, calldataStart, calldataLength, 0, 0)
                 case 0 {
                     revert(0, 0)
                 }
@@ -62,13 +62,13 @@ contract TxManager is DSAuth, DSMath {
         }
     }
 
-    function uint256At(bytes data, uint256 location) pure internal returns (uint256 result) {
+    function uint256At(bytes memory data, uint256 location) pure internal returns (uint256 result) {
         assembly {
             result := mload(add(data, add(0x20, location)))
         }
     }
 
-    function addressAt(bytes data, uint256 location) pure internal returns (address result) {
+    function addressAt(bytes memory data, uint256 location) pure internal returns (address result) {
         uint256 word = uint256At(data, location);
         assembly {
             result := div(and(word, 0xffffffffffffffffffffffffffffffffffffffff000000000000000000000000),
@@ -76,7 +76,7 @@ contract TxManager is DSAuth, DSMath {
         }
     }
 
-    function locationOf(bytes data, uint256 location) pure internal returns (uint256 result) {
+    function locationOf(bytes memory data, uint256 location) pure internal returns (uint256 result) {
         assembly {
             result := add(data, add(0x20, location))
         }
