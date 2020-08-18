@@ -60,11 +60,6 @@ together, whereas each record is built as follows:
 
 For example, if you want to make one call to `0x11111222223333344444333332222211111122222`,
 the script may look like this `111112222233333444443333322222111111222220000000000000000000000000000000000000000000000000000000000000024a39f1c6c0000000000000000000000000000000000000000000000000000000000000064`,
-the last part of it being calldata encoded with:
-
-```bash
-$ seth calldata 'cork(uint256)' 100
-0xa39f1c6c0000000000000000000000000000000000000000000000000000000000000064
-```
+the last part of it being calldata.
 
 The script parameter should be a concatenation of records of all calls to be made.
